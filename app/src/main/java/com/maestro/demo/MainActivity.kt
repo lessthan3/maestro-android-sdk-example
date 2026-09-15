@@ -37,8 +37,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val siteId = "695c05610f99e7584a1b7407"
-        val pageId: String? = "695c05610f99e7584a1b743e"
+        val siteId = "69b2f133e8117ec6536d59a1"
+        val pageId: String? = "6aa966d669342216ada5a4b8"
 
         val delegate = MaestroDelegate()
 
