@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,9 +28,10 @@ import com.lessthan3.maestropanel.shared.core.sdk.CoreEventDelegate
 import com.lessthan3.maestropanel.shared.core.sdk.CoreMaestroSDK
 import com.lessthan3.maestropanel.shared.core.sdk.CoreSDKParameters
 import com.maestro.demo.ui.theme.MyApplicationTheme
-import com.maestro.uitoolkit.core.MaestroCoreOverlays
+import com.maestro.uitoolkit.core.MaestroCoreOverlayView
 import com.maestro.uitoolkit.core.MaestroCorePanel
 import com.maestro.uitoolkit.core.MaestroCoreSDK
+import com.maestro.uitoolkit.core.toAlignment
 
 private val PanelWidth = 400.dp
 
@@ -51,7 +54,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyApplicationTheme {
+                val overlay by sdk.overlays.collectAsState(initial = null)
                 Content(
+                    isOverlayShowing = overlay != null,
                     onShowTestOverlay = { sdk.debugInterface.triggerTestOverlay() },
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -65,11 +70,19 @@ class MainActivity : ComponentActivity() {
                             .align(Alignment.CenterEnd),
                     )
                     // Overlays get the app's area left of the panel, so they never cover it.
-                    MaestroCoreOverlays(
-                        sdk = sdk,
-                        modifier = Modifier.padding(end = PanelWidth),
-                        onDismiss = { Log.d(Tag, "Overlay dismissed") },
-                    )
+                    overlay?.let { current ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = PanelWidth),
+                            contentAlignment = current.position?.toAlignment() ?: Alignment.TopEnd,
+                        ) {
+                            MaestroCoreOverlayView(
+                                sdk = sdk,
+                                onDismiss = { Log.d(Tag, "Overlay dismissed") },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -102,6 +115,7 @@ class MaestroDelegate : CoreEventDelegate {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun Content(
+    isOverlayShowing: Boolean,
     onShowTestOverlay: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -123,6 +137,9 @@ fun Content(
                 Text(text = "This is your app")
                 Button(onClick = onShowTestOverlay) {
                     Text(text = "Show test overlay")
+                }
+                if (isOverlayShowing) {
+                    Text(text = "A Maestro overlay is showing")
                 }
             }
         }
