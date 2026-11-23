@@ -9,7 +9,7 @@ tvMaterial = "1.0.1"
 lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 desugar_jdk_libs = "2.1.2"
-maestroSdk = "4.0.45-core"
+maestroSdk = "4.0.46-core"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,11 +28,13 @@ import androidx.tv.material3.Text
 import com.lessthan3.maestropanel.shared.core.sdk.CoreEventDelegate
 import com.lessthan3.maestropanel.shared.core.sdk.CoreMaestroSDK
 import com.lessthan3.maestropanel.shared.core.sdk.CoreSDKParameters
+import com.lessthan3.maestropanel.shared.feature.panellayout.PanelAction
 import com.maestro.demo.ui.theme.MyApplicationTheme
 import com.maestro.uitoolkit.core.MaestroCoreOverlayView
 import com.maestro.uitoolkit.core.MaestroCorePanel
 import com.maestro.uitoolkit.core.MaestroCoreSDK
 import com.maestro.uitoolkit.core.toAlignment
+import kotlinx.coroutines.delay
 
 private val PanelWidth = 400.dp
 
@@ -54,6 +57,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyApplicationTheme {
+                // A real player reports the wall-clock moment it is showing (an HLS program date time, say);
+                // designed panels that read it show the data for that moment.
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        sdk.onPlayerTimecodeUpdated(System.currentTimeMillis())
+                        delay(1_000)
+                    }
+                }
                 val overlay by sdk.overlays.collectAsState(initial = null)
                 Content(
                     isOverlayShowing = overlay != null,
@@ -109,6 +120,10 @@ class MaestroDelegate : CoreEventDelegate {
 
     override fun shouldHidePanel() {
         Log.d(Tag, "Should hide panel")
+    }
+
+    override fun onPanelAction(action: PanelAction) {
+        Log.d(Tag, "Panel action: $action")
     }
 }
 
